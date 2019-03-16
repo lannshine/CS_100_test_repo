@@ -425,7 +425,7 @@ return 0;
 B* makeTree(vector<string> &commands) {
     stack<string> stack;
     queue<string> queue;
-    stack<B*> newStack;
+    stack<B*> nStack;
     B* ex;
     
     for (int i = 0; i < commands.size(); i++) {
@@ -465,8 +465,8 @@ B* makeTree(vector<string> &commands) {
     // stack<Base*> newStack;
     // Base* ex;
     
-    while (!(newStack.empty())) {
-        newStack.pop();
+    while (!(nStack.empty())) {
+        nStack.pop();
     }
     
     bool checker = false;
@@ -496,22 +496,22 @@ B* makeTree(vector<string> &commands) {
         }
         
         if(checker) {
-            newStack.push(ex);
+            nStack.push(ex);
         }
         else {
-            B* right = newStack.top();
-            newStack.pop();
-            B* left = newStack.top();
-            newStack.pop();
+            B* right = nStack.top();
+            nStack.pop();
+            B* left = nStack.top();
+            nStack.pop();
             ex->MakeRoots(left, right);
-            newStack.push(ex);
+            nStack.push(ex);
         }
         queue.pop();
     }
     
-    B* neww = newStack.top();
-    while (!newStack.empty()) {
-        newStack.pop();
+    B* neww = nStack.top();
+    while (!nStack.empty()) {
+        nStack.pop();
     }
     return neww;
 }
