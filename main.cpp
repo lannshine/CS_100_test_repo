@@ -423,9 +423,10 @@ return 0;
 
 
 B* makeTree(vector<string> &commands) {
+    stack<B*> nStack;
     stack<string> stack;
     queue<string> queue;
-    stack<B*> nStack;
+    
     B* ex;
     
     for (int i = 0; i < commands.size(); i++) {
