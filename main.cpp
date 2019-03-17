@@ -20,20 +20,17 @@
 using namespace std;
 
 
-Base* makeTree(vector<string> &cmdVector) {
+Base* makeTree(vector<string> &cmds) {
 	stack< Base* > theStack;
 	stack<string> stack; 
 	queue<string> q;
 	bool checker = false;
 	
-	for (int i = 0; i < cmdVector.size(); i++) {
-			if (cmdVector.at(i) != ";" && cmdVector.at(i) != "|" && cmdVector.at(i) != "&" && cmdVector.at(i) != "(" && cmdVector.at(i) != ")" && cmdVector.at(i) != "%") {
-				q.push(cmdVector.at(i));
-			}
-			else if (cmdVector.at(i) == ";" || cmdVector.at(i) == "|" || cmdVector.at(i) == "&" || cmdVector.at(i) == "%") 
+	for (int i = 0; i < cmds.size(); i++) {
+			if (cmds.at(i) == ";" || cmds.at(i) == "|" || cmds.at(i) == "&" || cmds.at(i) == "%") 
 			{ 
 				if (stack.empty()) {
-					stack.push(cmdVector.at(i));
+					stack.push(cmds.at(i));
 					continue;
 				}
 				else if (stack.top() != "(") {
@@ -41,14 +38,16 @@ Base* makeTree(vector<string> &cmdVector) {
 					stack.pop();
 				}
 				
-				stack.push(cmdVector.at(i));
+				stack.push(cmds.at(i));
+			}
+			else if (cmds.at(i) != ";" && cmds.at(i) != "|" && cmds.at(i) != "&" && cmds.at(i) != "(" && cmds.at(i) != ")" && cmds.at(i) != "%") {
+				q.push(cmds.at(i));
 			}
 			
-			else if (cmdVector.at(i) == "(") {
-				stack.push(cmdVector.at(i));
+			else if (cmds.at(i) == "(") {
+				stack.push(cmds.at(i));
 			}
-			
-			else if (cmdVector.at(i) == ")") {
+			else if (cmds.at(i) == ")") {
 			
 				while (stack.top() != "(") {
 					q.push(stack.top());
@@ -57,6 +56,7 @@ Base* makeTree(vector<string> &cmdVector) {
 				
 				stack.pop();
 			}
+			
 	}
 	
 	while (!stack.empty()) {
@@ -141,7 +141,6 @@ int main() {
 				comment = false; 
 			}
 		}
-	
 		for (int i = 0; i < input.size(); i++) { 
 			if (input.at(i) == ';' || input.at(i) == '&' || input.at(i) == '|' || input.at(i) == '(' || input.at(i) == ')') {
 				connector = true; 
@@ -190,7 +189,7 @@ int main() {
 				
 					else {
 						commands.push_back(input.substr(start, i - start));
-						commands.push_back("%");
+						commands.push_back("%"); /*differentiating between pipe and Or */
 						i = i + 1;
 						start = i + 1;
 					}

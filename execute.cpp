@@ -37,25 +37,14 @@ bool Execute::evaluate(int start, int end) {
 	if (command.at(0) == "test" || command.at(0) == "[") {
 		if (command.at(0) == "[") {
 			if (command.at(command.size() - 1) != "]") {
-				cout << "Incomplete brackets" << endl;
+				cout << "Uneven brackets, please fix." << endl;
 				return false;
 			}
 		}
 
 		struct stat buf;
-		if (command.at(1) == "-e") {
-			if (stat(const_cast<char*>(command.at(2).c_str()), &buf) != 0) {
-				cout << "unable to access " << command.at(2) << endl;
-				cout << "(False)" << endl;
-				return false;
-			}
-			else {
-				cout << "(True)" << endl;
-				return true;
-			}
-		}
 		
-		else if (command.at(1) == "-d") {
+		if (command.at(1) == "-d") {
 			if (stat(const_cast<char*>(command.at(2).c_str()), &buf) != 0) {
 				cout << "unable to access " << command.at(2) << endl;
 				cout << "(False)" << endl;
@@ -70,6 +59,17 @@ bool Execute::evaluate(int start, int end) {
 			else {
 				cout << "(False)" << endl;
 				return false;
+			}
+		}
+		else if (command.at(1) == "-e") {
+			if (stat(const_cast<char*>(command.at(2).c_str()), &buf) != 0) {
+				cout << "unable to access " << command.at(2) << endl;
+				cout << "(False)" << endl;
+				return false;
+			}
+			else {
+				cout << "(True)" << endl;
+				return true;
 			}
 		}
 		
@@ -107,11 +107,15 @@ bool Execute::evaluate(int start, int end) {
 	if (command.at(0) == "exit") {
 		exit(0);
 	}
-	else {
+	else { /*no test*/
 		pid_t pid = fork();
 		pid_t dub;
 		int statusCheck;
-		if (pid == 0) {
+		if (pid < 0) { 
+			cout << "ERROR: forking child process failed" << endl;
+			exit(1);
+		}
+		else if (pid == 0) {
 			vector<string> temp;
 			for (int i = 0; i < command.size(); i++) {
 				if (command.at(i) != "<" && command.at(i) != ">" && command.at(i) != ">>") {
@@ -242,7 +246,7 @@ bool Execute::evaluate(int start, int end) {
 				dup2(start, 0);
 				dup2(end, 1);
 				if (start != 0) {
-					close(end);
+					close(start);
 				}
 				else if (end != 1) {
 					close(end);
@@ -253,10 +257,6 @@ bool Execute::evaluate(int start, int end) {
 		            exit(1);
 				}
 			}
-		}
-		else if (pid < 0) { 
-			cout << "ERROR: forking child process failed" << endl;
-			exit(1);
 		}
 		else {
 			dub = waitpid(pid, &statusCheck, 0);
