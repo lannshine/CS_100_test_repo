@@ -1,44 +1,24 @@
-#include "connect.h"
-#include "b.h"
-
+#include "connector.h"
+#include "base.h"
+#include <unistd.h>
+#include <sys/wait.h>
+#include <string>
+#include <fcntl.h>
 #include <iostream>
 #include <vector>
 #include <stdio.h>
-#include <string>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h>	
 #include <string.h>
 
-/*---Or------------------*/
-Or::Or() : Connector() {}
-bool Or::evaluate(int in, int out) {
-    if ((left->evaluate(0, 1) == true) || (right->evaluate(0, 1) == true)) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
 
-/*---And-------------------*/
-//And::And() {}
-bool And::evaluate(int in, int out) {
-    if ((left->evaluate(0, 1) == true) && (right->evaluate(0, 1) == true)){
-        return true;
-    }
-    else {
-        return false;
-    }
-}
+using namespace std;
 
-/*---Semi----------------------*/
-//Semi::Semi() {}
-bool Semi::evaluate(int in, int out) {
-    left->evaluate(0, 1);
+Semi::Semi() : Connector() {}
+
+bool Semi::evaluate(int start, int end) {
+	left->evaluate(0, 1);
     if(right->evaluate(0, 1)) {
         return true;
     }
@@ -47,13 +27,37 @@ bool Semi::evaluate(int in, int out) {
     }
 }
 
-bool Pipe::evaluate(int in, int out) {
-    int piper[2];
-    pipe(piper);
-    
-    left->evaluate(in, piper[1]);
-    close(piper[0]);
-    return true;
+Or::Or() : Connector() {}
+
+bool Or::evaluate(int start, int end) {
+	if ((left->evaluate(0, 1) == true) || (right->evaluate(0, 1) == true)) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 
+And::And() : Connector() {}
+
+bool And::evaluate(int start, int end) {
+	if ((left->evaluate(0, 1) == true) && (right->evaluate(0, 1) == true)){
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+Pipe::Pipe() : Connector() {}
+
+bool Pipe::evaluate(int in, int out) {
+	int fileD[2];
+	pipe(fileD);
+	left->evaluate(in, fileD[1]);
+	close(fileD[1]);
+	right->evaluate(fileD[0], out);
+	close(fileD[0]);
+	return true;
+}
